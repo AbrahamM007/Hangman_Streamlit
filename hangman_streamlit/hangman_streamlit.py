@@ -1,29 +1,32 @@
 import streamlit as st
 import random
 
-def choose_word():
-    word_bank = ["apple", "banana", "orange", "grape", "kiwi", "melon", "peach", "pineapple", "mango", "cherry", "berry"]
-    return random.choice(word_bank)
-
 def display_word(word, guessed_letters):
+    remaining_letters = 0
     displayed_word = ''
     for letter in word:
         if letter in guessed_letters:
             displayed_word += letter
         else:
             displayed_word += '_'
-    return displayed_word
+            remaining_letters += 1
+    return displayed_word, remaining_letters
+
 
 def hangman():
-    word = choose_word()
+    word_bank = ["apple", "banana", "orange", "grape", "kiwi", "melon", "peach", "pineapple", "mango", "cherry", "berry"]
+    word = random.choice(word_bank)
     guessed_letters = []
     attempts = 6
 
     st.title("Hangman")
-    st.write(display_word(word, guessed_letters))
+    displayed_word, remaining_letters = display_word(word, guessed_letters)
+    st.write(displayed_word)
+
+    guess_input_key = "guess_input"  # Initial key
 
     while True:
-        guess = st.text_input("Guess a letter:").lower()
+        guess = st.text_input("Guess a letter:", key=guess_input_key).lower()
 
         if guess in guessed_letters:
             st.write("You've already guessed that letter!")
@@ -43,12 +46,16 @@ def hangman():
         else:
             st.write("Correct guess!")
 
-        displayed = display_word(word, guessed_letters)
-        st.write(displayed)
+        displayed_word, remaining_letters = display_word(word, guessed_letters)
+        st.write(displayed_word)
+        st.write(f"{remaining_letters} letter(s) remaining.")
 
-        if '_' not in displayed:
+        if remaining_letters == 0:
             st.write(f"Congratulations! You've guessed the word: {word}")
             break
+
+        # Update key for the next iteration
+        guess_input_key = f"guess_input_{len(guessed_letters)}"
 
 if __name__ == "__main__":
     hangman()
